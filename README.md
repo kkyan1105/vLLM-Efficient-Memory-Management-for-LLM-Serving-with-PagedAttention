@@ -47,4 +47,4 @@ If a request finishes earlier than expected, the unused portion of its prealloca
 
 This is the most damaging form. As requests with different lengths start and finish over time, the GPU memory becomes filled with small free gaps. These gaps cumulatively hold a large amount of free memory, but because each gap is too small to fit a full contiguous KV buffer, they cannot be used.
 
-<p align="center"> <img src="figs/figure3.png" width="65%"> </p>
+<p align="center"> <img src="figs/figure3.png" width="100%"> </p>
