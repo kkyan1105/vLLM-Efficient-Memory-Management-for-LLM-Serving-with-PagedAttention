@@ -53,8 +53,6 @@ This is the most damaging form. As requests with different lengths start and fin
 
 The paper evaluates popular serving systems (Orca Max, Orca Pow2, Orca Oracle) and finds that only 20–38% of their KV memory stores actual token states. The remainder is lost to reservation, internal fragmentation, and external fragmentation.
 
-<p align="center"> <img src="figs/figure2.png" width="45%"> </p>
-
 This inefficiency is the core motivation for PagedAttention: **the constraint of contiguity must be removed**.
 
 ## 3. PagedAttention: Key Idea and Intuition
@@ -65,3 +63,26 @@ Each request maintains a **block table**, a simple mapping:
 ```
 logical token index → physical block ID
 ```
+This provides the model with a virtual contiguous KV address space, while the GPU can freely reuse and rearrange blocks.
+
+<p align="center"> <img src="figs/figure5.png" width="65%"> </p>
+
+### Logical-to-Physical Translation
+
+As new tokens are generated, their KV vectors are written into blocks assigned by the block allocator. When computing attention, the model retrieves all KV blocks corresponding to the history of the sequence. The block table decouples logical ordering from physical layout.
+
+<p align="center"> <img src="figs/figure6.png" width="65%"> </p>
+
+### Why This Works
+
+PagedAttention achieves:
+
+* near-zero memory waste
+* instant block reuse
+* efficient support for prefix sharing
+* dynamic continuous batching
+* beam search and parallel sampling without copying KV
+* stable high throughput
+
+Without modifying model weights or architecture.
+
