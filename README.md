@@ -126,19 +126,43 @@ Each worker hosts a shard of the model and executes PagedAttention to fetch KV b
 
 ---
 
-## 5. PagedAttention Workflow
+## 5. PagedAttention Pseudocode
 
-Below is the conceptual workflow used during decoding:
-```
-1. Identify the range of logical token indices needed.
-2. Translate each logical position to a physical block via the block table.
-3. Load the KV slices from the corresponding blocks.
-4  Concatenate the slices logically.
-5. Compute attention using these KV vectors.
-6. Write the new KV vectors into the next available position; allocate new blocks if needed.
-```
-This process makes PagedAttention both simple and extremely powerful.
+### Algorithm 1 — PagedAttention Decoding (Single Step)
 
+```pseudo
+Input:
+    r: request
+    x₁…x_T: existing tokens
+    BlockTable[r]: logical block id → physical block id
+    KVBlocks: storage for all physical KV blocks
+    NewToken: token at position t = T + 1
+
+# 1. Gather past KV for attention
+for i = 1 … T do
+    block_id   ← floor((i - 1) / BLOCK_SIZE)
+    offset     ← (i - 1) mod BLOCK_SIZE
+    phys_block ← BlockTable[r][block_id]
+    K_i, V_i   ← KVBlocks[phys_block][offset]
+end for
+
+# 2. Compute attention for the new token
+y_t ← Attention(Q_t, {K_i}, {V_i})
+
+# 3. Append new KV into blocks
+block_id_new  ← floor((t - 1) / BLOCK_SIZE)
+offset_new    ← (t - 1) mod BLOCK_SIZE
+if BlockTable[r][block_id_new] is empty then
+    phys_block_new ← AllocateFreeBlock()
+    BlockTable[r][block_id_new] ← phys_block_new
+end if
+phys_block_new ← BlockTable[r][block_id_new]
+KVBlocks[phys_block_new][offset_new] ← (K_t, V_t)
+
+Output:
+    y_t (the output)
+    updated BlockTable and KVBlocks
+```
 ---
 
 ## 6. Block Management & Advanced Features
