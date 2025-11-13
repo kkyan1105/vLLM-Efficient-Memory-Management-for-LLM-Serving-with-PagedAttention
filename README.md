@@ -266,6 +266,7 @@ vLLM significantly reduces memory waste during inference, allowing larger batch 
 The work reframes LLM serving as a memory-management problem rather than a compute-bound problem. By introducing a paging-style abstraction to attention, it highlights the importance of system-level design in achieving major performance gains.
 
 ### Ecosystem Influence
+PagedAttention influenced many serving stacks:
 - HuggingFace TGI  
 - TensorRT-LLM  
 - LightLLM  
