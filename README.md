@@ -176,29 +176,48 @@ This shows that systems like FasterTransformer and Orca quickly hit latency spik
 ### Strengths
 
 * Elegant OS-inspired solution
-
 * Eliminates all fragmentation
-
 * Highly practical in production
-
 * No model weight modification
-
 * Strong support for advanced decoding algorithms
 
 ### Weaknesses
 
 * Block-table overhead is not deeply profiled
-
 * Limited discussion on multi-GPU synchronization
-
 * Optimal block size still involves trade-offs
-
+  
 ### Potential Improvements
 
 * Adaptive block sizing
-
 * More advanced scheduling fairness
-
 * Better pipelining of block fetch with compute
 
+---
 
+## 9. Impact
+### Practical Impact
+vLLM significantly reduces memory waste during inference, allowing larger batch sizes and higher throughput without requiring any changes to model weights. This directly lowers serving cost and makes deployment of large models far more efficient on commodity GPUs.
+
+### Scientific Impact
+The work reframes LLM serving as a memory-management problem rather than a compute-bound problem. By introducing a paging-style abstraction to attention, it highlights the importance of system-level design in achieving major performance gains.
+
+### Ecosystem Influence
+- HuggingFace TGI  
+- TensorRT-LLM  
+- LightLLM  
+- LMDeploy and other industrial serving stacks  
+PagedAttention is now viewed as a standard approach for KV-cache management across modern LLM inference frameworks.
+
+---
+
+## 10. Resource Links
+[Original Paper](https://arxiv.org/pdf/2309.06180)  
+[vLLM Official Repository](https://github.com/vllm-project/vllm)  
+[vLLM Documentation](https://docs.vllm.ai)    
+[Paper Reproduction](https://github.com/SZU-AdvTech-2024/003-Efficient-Memory-Management-for-Large-Language-Model-Serving-with-PagedAttention)  
+[HuggingFace TGI (influenced by vLLM concepts)](https://github.com/huggingface/text-generation-inference)
+
+---
+
+## 11. Citation
