@@ -63,13 +63,13 @@ This inefficiency is the core motivation for PagedAttention: **the constraint of
 
 PagedAttention solves the core problem by rejecting the assumption that KV cache must be contiguous. Instead, vLLM divides memory into fixed-size blocks (like OS pages) and allows these blocks to be placed anywhere in GPU memory.
 
-Each request maintains a **block table**, this mirrors how operating systems maintain virtual-to-physical page mappings. A simple mapping:
-```
-logical token index → physical block ID
-```
-This provides the model with a virtual contiguous KV address space, while the GPU can freely reuse and rearrange blocks.
+The strategy they used is **paging**.
 
-<p align="center"> <img src="figs/figure5.png" width="65%"> </p>
+A program thinks it has one large, continuous chunk of memory, but in reality, the OS scatters its data across many small physical pages.  
+vLLM applies the same idea to KV cache management. It introduces PagedAttention, which breaks the KV cache into small, fixed-size blocks, instead of one large buffer. 
+
+
+<p align="center"> <img src="figs/figure5.png" width="45%"> </p>
 
 ### Question 2
 If the KV cache is no longer stored as one big contiguous buffer, how does the model still know which token is where?
