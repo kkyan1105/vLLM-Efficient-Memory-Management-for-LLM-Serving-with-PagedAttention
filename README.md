@@ -226,11 +226,10 @@ Kwon, W., Yao, Z., Wang, S., Zheng, L., Zhang, Y., Liu, T., Yu, R., Zaharia, M.,
 **Efficient Memory Management for Large Language Model Serving with PagedAttention.**  
 *arXiv preprint arXiv:2309.06180.*
 ```
-@article{kwon2023pagedattention,
+@inproceedings{kwon2023efficient,
   title={Efficient Memory Management for Large Language Model Serving with PagedAttention},
-  author={Kwon, Woosuk and Yao, Zhihao and Wang, Shouyuan and Zheng, Lianmin and 
-          Zhang, Yongyu and Liu, Tianyi and Yu, Rulin and Zaharia, Matei and Stoica, Ion},
-  journal={arXiv preprint arXiv:2309.06180},
+  author={Woosuk Kwon and Zhuohan Li and Siyuan Zhuang and Ying Sheng and Lianmin Zheng and Cody Hao Yu and Joseph E. Gonzalez and Hao Zhang and Ion Stoica},
+  booktitle={Proceedings of the ACM SIGOPS 29th Symposium on Operating Systems Principles},
   year={2023}
 }
 ```
