@@ -35,15 +35,15 @@ Because freed memory returns as many small scattered gaps, but each request need
 
 Traditional LLM serving frameworks such as FasterTransformer or HuggingFace Transformers use a **contiguous KV cache per request**. Although easy to implement, this causes three fundamental types of memory waste.
 
-###2.1 Reservation Waste
+### 2.1 Reservation Waste
 
 Because the size of the KV cache must support the maximum possible sequence length, the system reserves far more memory than most real requests need. A user input of 200 tokens still reserves space for the maximum length (e.g., 2048 or 4096), leaving a large unused portion.
 
-###2.2 Internal Fragmentation
+### 2.2 Internal Fragmentation
 
 If a request finishes earlier than expected, the unused portion of its preallocated KV buffer remains unusable by other requests. Even if 70% of the buffer is empty, no other request can use that space, because buffers must stay contiguous.
 
-###2.3 External Fragmentation
+### 2.3 External Fragmentation
 
 This is the most damaging form. As requests with different lengths start and finish over time, the GPU memory becomes filled with small free gaps. These gaps cumulatively hold a large amount of free memory, but because each gap is too small to fit a full contiguous KV buffer, they cannot be used.
 
