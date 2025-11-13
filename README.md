@@ -185,7 +185,10 @@ vLLM avoids throughput collapse caused by fragmentation, allowing batch size to 
 | Parallel Sampling (2 → 6 samples) | **6.09% → 9.79%**   |
 | Beam Search (2 → 6 beams)         | **37.56% → 55.16%** |
 
-vLLM’s block sharing reuses prefix KV instead of duplicating it, eliminating internal & external fragmentation.
+Less KV memory use means:  
+* larger batch sizes  
+* more requests served at once  
+* higher throughput  
 
 ### - Prefix Sharing & Reuse Efficiency
 Tasks such as beam search, parallel sampling, and translation all benefit from shared prefixes.  
@@ -195,7 +198,7 @@ Tasks such as beam search, parallel sampling, and translation all benefit from s
 | ShareGPT | 7 batch reuse | 9.8         | 13.6          | **30.4** | **3–4×** more reuse |
 | Alpaca   | 7             | 43          | 73            | **132**  | **3×** more reuse   |
 
-More reuse = fewer KV writes = higher throughput.
+This clearly demonstrates how block sharing reduces both memory use and compute cost.
 
 ### - Ablation Findings
 * Optimal block size is 16–64, achieving the lowest latency.  
