@@ -179,6 +179,7 @@ vLLM supports significantly higher request rates before latency spikes.
 vLLM avoids throughput collapse caused by fragmentation, allowing batch size to grow dynamically.
 
 ### - Memory Savings from Block Sharing
+PagedAttention stores prefixes in reusable blocks, it avoids duplicating KV cache across samples or beams.  
 #### Average Memory Savings (OPT-13B on Alpaca)
 | Workflow                          | Memory Savings      |
 | --------------------------------- | ------------------- |
