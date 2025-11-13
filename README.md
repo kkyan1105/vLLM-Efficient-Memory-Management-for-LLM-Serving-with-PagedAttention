@@ -26,9 +26,10 @@ In real serving workloads, requests arrive with highly variable prompt lengths a
 
 <p align="center"> <img src="figs/figure1.png" width="40%"> </p>
 
+This is the motivation behind vLLM — a system designed to solve the KV-cache memory problem by rethinking how memory is allocated and reused.
 The key insight of vLLM is that this is fundamentally a memory management problem similar to operating-system paging. vLLM introduces PagedAttention, which stores KV cache in small, fixed-size blocks instead of one contiguous region. A block table preserves logical contiguity, so the physical blocks can be placed anywhere in GPU memory without affecting attention computation.
 
-This design eliminates reservation waste, internal fragmentation, and external fragmentation, enabling significantly larger batch sizes and improving real-world serving throughput by 2×–6× across many workloads.
+This design enables significantly larger batch sizes and improving real-world serving throughput by 2×–6× across many workloads.
 
 
 ---
