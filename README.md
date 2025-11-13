@@ -248,7 +248,7 @@ This clearly demonstrates how block sharing reduces both memory use and compute 
 ### Weaknesses
 
 * Block-table overhead is not deeply profiled, especially under extremely long texts
-* Limited discussion on multi-GPU or ditributed KV-cache management
+* Limited discussion on multi-GPU or distributed KV-cache management
 * Optimal block size still needs empirical tuning, different workloads -> different trade-offs
   
 ### Potential Improvements
