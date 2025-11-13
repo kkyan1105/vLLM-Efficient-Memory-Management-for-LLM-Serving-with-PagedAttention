@@ -153,4 +153,52 @@ Beam search paths share prefix blocks until they diverge, dramatically reducing 
 * Shared Prefix Tasks  
 Many tasks (e.g., translation with few-shot examples) naturally share long prompts.
 
+---
+
+## 7. Results & Experiments
+
+The authors evaluate OPT-13B/66B/175B models on ShareGPT and Alpaca traces. Across all experiments, vLLM delivers:
+
+* **2×–4× higher throughput**
+* **substantially larger batch sizes**
+* **stable latency**
+* **no fragmentation-induced OOM**
+  
+Below is one representative latency curve:
+
+<p align="center"> <img src="figs/figure12.png" width="50%"> </p>
+
+This shows that systems like FasterTransformer and Orca quickly hit latency spikes as request rate increases, while vLLM remains stable until much higher throughput.
+
+---
+
+## 8. Critical Analysis
+### Strengths
+
+* Elegant OS-inspired solution
+
+* Eliminates all fragmentation
+
+* Highly practical in production
+
+* No model weight modification
+
+* Strong support for advanced decoding algorithms
+
+### Weaknesses
+
+* Block-table overhead is not deeply profiled
+
+* Limited discussion on multi-GPU synchronization
+
+* Optimal block size still involves trade-offs
+
+### Potential Improvements
+
+* Adaptive block sizing
+
+* More advanced scheduling fairness
+
+* Better pipelining of block fetch with compute
+
 
