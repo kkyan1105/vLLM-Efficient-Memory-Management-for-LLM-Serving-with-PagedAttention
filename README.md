@@ -53,7 +53,7 @@ This is the most damaging form. As requests with different lengths start and fin
 
 The paper evaluates popular serving systems (Orca Max, Orca Pow2, Orca Oracle) and finds that only 20–38% of their KV memory stores actual token states. The remainder is lost to reservation, internal fragmentation, and external fragmentation.
 
-<p align="center"> <img src="figs/figure2.png" width="65%"> </p>
+<p align="center"> <img src="figs/figure2.png" width="45%"> </p>
 
 This inefficiency is the core motivation for PagedAttention: **the constraint of contiguity must be removed**.
 
@@ -62,6 +62,6 @@ This inefficiency is the core motivation for PagedAttention: **the constraint of
 PagedAttention solves the core problem by rejecting the assumption that KV cache must be contiguous. Instead, vLLM divides memory into fixed-size blocks (like OS pages) and allows these blocks to be placed anywhere in GPU memory.
 
 Each request maintains a **block table**, a simple mapping:
-'''
+```
 logical token index → physical block ID
-'''
+```
