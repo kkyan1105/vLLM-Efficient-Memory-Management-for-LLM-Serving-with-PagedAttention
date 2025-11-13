@@ -62,7 +62,7 @@ This inefficiency is the core motivation for PagedAttention: **the constraint of
 
 ## 3. PagedAttention: Key Idea and Intuition
 
-PagedAttention solves the core problem by rejecting the assumption that KV cache must be contiguous. Instead, vLLM divides memory into fixed-size blocks (like OS pages) and allows these blocks to be placed anywhere in GPU memory.
+Core problem: Memory management problem. Operating system solved similar problems decades ago. 
 
 The strategy they used is **paging**.
 
