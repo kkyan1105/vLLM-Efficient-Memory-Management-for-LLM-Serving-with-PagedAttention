@@ -19,8 +19,6 @@ Traditional LLM serving systems allocate **one large contiguous KV buffer** per 
 
 To address this mismatch, vLLM introduces **PagedAttention**, inspired by OS virtual memory. Instead of requiring contiguous memory, vLLM splits KV-cache into **fixed-size blocks**. A per-request **block table** maps logical positions to physical locations. Blocks can be placed anywhere in GPU memory, eliminating fragmentation, improving block reuse, enabling continuous batching, and significantly increasing throughput.
 
----
-
 ### Question 1
 Why does allocating one large contiguous KV cache per request inevitably cause memory fragmentation as batch composition changes over time?
 <details>
@@ -30,6 +28,8 @@ Why does allocating one large contiguous KV cache per request inevitably cause m
 Because freed memory returns as many small scattered gaps, but each request needs one large continuous KV buffer. New requests cannot fit into these small fragments, so memory becomes unusable even when total free memory is still large.
 
 </details>
+
+---
 
 ## 2. Problem: Why Existing KV Allocation Fails
 
@@ -54,6 +54,8 @@ This is the most damaging form. As requests with different lengths start and fin
 The paper evaluates popular serving systems (Orca Max, Orca Pow2, Orca Oracle) and finds that only 20–38% of their KV memory stores actual token states. The remainder is lost to reservation, internal fragmentation, and external fragmentation.
 
 This inefficiency is the core motivation for PagedAttention: **the constraint of contiguity must be removed**.
+
+---
 
 ## 3. PagedAttention: Key Idea and Intuition
 
@@ -86,3 +88,46 @@ PagedAttention achieves:
 
 Without modifying model weights or architecture.
 
+### Question 2
+Under PagedAttention, why is it no longer necessary for KV cache to be stored contiguously in memory?
+<details>
+  <summary><strong>Answer</strong><br>
+  </summary>
+
+Because each request uses a block table that preserves logical KV order. The model sees a virtual contiguous layout even though physical KV blocks are scattered in memory.
+</details>
+
+---
+
+## 4. Architecture Overview
+
+PagedAttention integrates into a broader system architecture that includes scheduling, block management, and multi-worker execution.
+
+* Scheduler  
+The scheduler dynamically batches requests and determines which tokens to generate next. Because PagedAttention allows requests to join or leave at any step, the scheduler can perform continuous batching, significantly increasing throughput.
+
+* KV Cache Manager  
+Maintains block tables for all active requests and handles allocation and freeing of blocks.
+
+* CPU/GPU Block Allocators  
+Allocate physical blocks on GPU (or CPU when offloading is needed). Because blocks are fixed-size, they can be reused immediately.
+
+* Workers  
+Each worker hosts a shard of the model and executes PagedAttention to fetch KV blocks based on block tables.
+
+<p align="center"> <img src="figs/figure4.png" width="45%"> </p>
+
+---
+
+## 5. PagedAttention Workflow
+
+Below is the conceptual workflow used during decoding:
+```
+1. Identify the range of logical token indices needed.
+2. Translate each logical position to a physical block via the block table.
+3. Load the KV slices from the corresponding blocks.
+4  Concatenate the slices logically.
+5. Compute attention using these KV vectors.
+6. Write the new KV vectors into the next available position; allocate new blocks if needed.
+```
+This process makes PagedAttention both simple and extremely powerful.
