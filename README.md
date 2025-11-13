@@ -163,18 +163,46 @@ Many tasks (e.g., translation with few-shot examples) naturally share long promp
 
 ## 7. Results & Experiments
 
-The authors evaluate OPT-13B/66B/175B models on ShareGPT and Alpaca traces. Across all experiments, vLLM delivers:
+vLLM is evaluated across multiple workloads (ShareGPT, Alpaca, translation, chatbot).  
+Across the board, vLLM delivers 2×–6× throughput improvement while keeping latency low, primarily due to its efficient KV cache management. 
 
-* **2×–4× higher throughput**
-* **substantially larger batch sizes**
-* **stable latency**
-* **no fragmentation-induced OOM**
-  
-Below is one representative latency curve:
+### - Throughput Improvements
+vLLM supports significantly higher request rates before latency spikes.
+| Model    | Dataset  | Baseline Max Throughput | vLLM Max Throughput | Speedup   |
+| -------- | -------- | ----------------------- | ------------------- | --------- |
+| OPT-13B  | ShareGPT | ~2 req/s                | ~6 req/s            | **≈3×**   |
+| OPT-66B  | ShareGPT | ~0.4 req/s              | ~1.2 req/s          | **≈3×**   |
+| OPT-175B | ShareGPT | ~1.0 req/s              | ~2.5 req/s          | **≈2.5×** |
+| OPT-13B  | Alpaca   | ~9 req/s                | ~30 req/s           | **≈3.3×** |  
 
-<p align="center"> <img src="figs/figure12.png" width="50%"> </p>
+vLLM avoids throughput collapse caused by fragmentation, allowing batch size to grow dynamically.
 
-This shows that systems like FasterTransformer and Orca quickly hit latency spikes as request rate increases, while vLLM remains stable until much higher throughput.
+### - Memory Savings from Block Sharing
+#### Average Memory Savings (OPT-13B on Alpaca)
+| Workflow                          | Memory Savings      |
+| --------------------------------- | ------------------- |
+| Parallel Sampling (2 → 6 samples) | **6.09% → 9.79%**   |
+| Beam Search (2 → 6 beams)         | **37.56% → 55.16%** |
+
+vLLM’s block sharing reuses prefix KV instead of duplicating it, eliminating internal & external fragmentation.
+
+### - Prefix Sharing & Reuse Efficiency
+Tasks such as beam search, parallel sampling, and translation all benefit from shared prefixes.  
+#### vLLM Batch Reuse Compared to Baselines
+| Dataset  | Orca (Max)    | Orca (Pow2) | Orca (Oracle) | vLLM     | vLLM Gain           |
+| -------- | ------------- | ----------- | ------------- | -------- | ------------------- |
+| ShareGPT | 7 batch reuse | 9.8         | 13.6          | **30.4** | **3–4×** more reuse |
+| Alpaca   | 7             | 43          | 73            | **132**  | **3×** more reuse   |
+
+More reuse = fewer KV writes = higher throughput.
+
+### - Ablation Findings
+* Optimal block size is 16–64, achieving the lowest latency.  
+* Swapping / recompute methods are much slower.  
+* PagedAttention gives the best balance of memory efficiency and compute overhead.
+
+
+
 
 ---
 
