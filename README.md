@@ -218,10 +218,12 @@ Less KV memory use means:
 ### - Prefix Sharing & Reuse Efficiency
 Tasks such as beam search, parallel sampling, and translation all benefit from shared prefixes.  
 #### vLLM Batch Reuse Compared to Baselines
-| Dataset  | Orca (Max)    | Orca (Pow2) | Orca (Oracle) | vLLM     | vLLM Gain           |
-| -------- | ------------- | ----------- | ------------- | -------- | ------------------- |
-| ShareGPT | 7 batch reuse | 9.8         | 13.6          | **30.4** | **3–4×** more reuse |
-| Alpaca   | 7             | 43          | 73            | **132**  | **3×** more reuse   |
+| Dataset  | Orca (Max)       | Orca (Pow2)      | Orca (Oracle)    | vLLM            | vLLM Gain           |
+| -------- | ---------------- | ---------------- | ---------------- | --------------- | ------------------- |
+| ShareGPT | 7 batch reuse    | 9.8 batch reuse  | 13.6 batch reuse | **30.4** batch reuse | **3–4×** more reuse |
+| Alpaca   | 7 batch reuse    | 43 batch reuse   | 73 batch reuse   | **132** batch reuse  | **3×** more reuse   |
+
+现在表格中的所有数值都有相同的单位"batch reuse"，使得数据的可读性和一致性更好了。
 
 This clearly demonstrates how block sharing reduces both memory use and compute cost.
 
