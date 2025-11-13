@@ -11,13 +11,7 @@ Modern LLM serving faces a major bottleneck caused by the KV cache—the key/val
 
 <p align="center"> <img src="figs/table1.png" width="40%"> </p>
 
-Most existing serving systems allocate the KV cache as one large contiguous memory block per request. This design works only when memory is clean and empty. In real serving workloads, however, requests arrive with highly variable prompt lengths and generation lengths. As requests finish and new ones arrive, the GPU memory becomes fragmented into many small gaps. Even if the total free memory is large, no single contiguous region may be big enough for a new KV cache allocation, resulting in severe memory fragmentation and degraded throughput.
-
-<p align="center"> <img src="figs/figure1.png" width="40%"> </p>
-
-The key insight of vLLM is that this is fundamentally a memory management problem similar to operating-system paging. vLLM introduces PagedAttention, which stores KV cache in small, fixed-size blocks instead of one contiguous region. A block table preserves logical contiguity, so the physical blocks can be placed anywhere in GPU memory without affecting attention computation.
-
-This design eliminates reservation waste, internal fragmentation, and external fragmentation, enabling significantly larger batch sizes and improving real-world serving throughput by 2×–6× across many workloads.
+Most existing serving systems allocate the KV cache as one large contiguous memory block per request. This design works only when memory is clean and empty. 
 
 ### Question 1
 Why does allocating one large contiguous KV cache per request inevitably cause memory fragmentation as batch composition changes over time?
@@ -25,9 +19,17 @@ Why does allocating one large contiguous KV cache per request inevitably cause m
   <summary><strong>Answer</strong><br>
   </summary>
 
-Because freed memory returns as many small scattered gaps, but each request needs one large continuous KV buffer. New requests cannot fit into these small fragments, so memory becomes unusable even when total free memory is still large.
+In real serving workloads, requests arrive with highly variable prompt lengths and generation lengths. As requests finish and new ones arrive, the GPU memory becomes fragmented into many small gaps. Even if the total free memory is large, no single contiguous region may be big enough for a new KV cache allocation, resulting in severe memory fragmentation and degraded throughput.
 
 </details>
+
+
+<p align="center"> <img src="figs/figure1.png" width="40%"> </p>
+
+The key insight of vLLM is that this is fundamentally a memory management problem similar to operating-system paging. vLLM introduces PagedAttention, which stores KV cache in small, fixed-size blocks instead of one contiguous region. A block table preserves logical contiguity, so the physical blocks can be placed anywhere in GPU memory without affecting attention computation.
+
+This design eliminates reservation waste, internal fragmentation, and external fragmentation, enabling significantly larger batch sizes and improving real-world serving throughput by 2×–6× across many workloads.
+
 
 ---
 
