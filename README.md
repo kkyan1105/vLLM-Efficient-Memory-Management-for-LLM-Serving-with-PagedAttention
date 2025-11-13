@@ -131,3 +131,26 @@ Below is the conceptual workflow used during decoding:
 6. Write the new KV vectors into the next available position; allocate new blocks if needed.
 ```
 This process makes PagedAttention both simple and extremely powerful.
+
+---
+
+## 6. Block Management & Advanced Features
+
+PagedAttention’s block-based design enables several advanced features.
+
+* Continuous Batching  
+Requests may enter or exit the batch at any time. The system does not need to reallocate KV cache when the batch changes.
+
+* Multi-Request KV Storage  
+Multiple requests coexist in GPU memory, each with its own block table.
+
+* Parallel Sampling (Copy-on-Write)  
+Parallel sampling requires multiple generations from the same prefix. vLLM shares prefix blocks across samples and uses copy-on-write for divergent tokens.
+
+* Beam Search  
+Beam search paths share prefix blocks until they diverge, dramatically reducing memory compared to copying the entire KV buffer.
+
+* Shared Prefix Tasks  
+Many tasks (e.g., translation with few-shot examples) naturally share long prompts.
+
+
