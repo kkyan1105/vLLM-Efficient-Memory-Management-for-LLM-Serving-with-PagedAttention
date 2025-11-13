@@ -71,6 +71,19 @@ This provides the model with a virtual contiguous KV address space, while the GP
 
 <p align="center"> <img src="figs/figure5.png" width="65%"> </p>
 
+### Question 2
+If the KV cache is no longer stored as one big contiguous buffer, how does the model still know which token is where?
+<details>
+  <summary><strong>Answer</strong><br>
+  </summary>
+
+The key is the **block table**.
+The model still attends over a logical sequence of tokens, Whenever it needs a token’s KV values, it uses the block table to locate which physical block contains them.
+So logical order is fully preserved, even though the physical storage is scattered across many blocks
+
+</details>
+
+
 ### Logical-to-Physical Translation
 
 As new tokens are generated, their KV vectors are written into blocks assigned by the block allocator. When computing attention, the model retrieves all KV blocks corresponding to the history of the sequence. The block table decouples logical ordering from physical layout.
@@ -89,15 +102,6 @@ PagedAttention achieves:
 * stable high throughput
 
 Without modifying model weights or architecture.
-
-### Question 2
-Under PagedAttention, why is it no longer necessary for KV cache to be stored contiguously in memory?
-<details>
-  <summary><strong>Answer</strong><br>
-  </summary>
-
-Because each request uses a block table that preserves logical KV order. The model sees a virtual contiguous layout even though physical KV blocks are scattered in memory.
-</details>
 
 ---
 
