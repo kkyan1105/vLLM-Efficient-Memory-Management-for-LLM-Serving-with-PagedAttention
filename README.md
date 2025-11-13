@@ -20,9 +20,10 @@ Traditional LLM serving systems allocate **one large contiguous KV buffer** per 
 To address this mismatch, vLLM introduces **PagedAttention**, inspired by OS virtual memory. Instead of requiring contiguous memory, vLLM splits KV-cache into **fixed-size blocks**. A per-request **block table** maps logical positions to physical locations. Blocks can be placed anywhere in GPU memory, eliminating fragmentation, improving block reuse, enabling continuous batching, and significantly increasing throughput.
 
 ### Question 1
+Why does allocating one large contiguous KV cache per request inevitably cause memory fragmentation as batch composition changes over time?
 <details>
-  <summary><strong>⭐ Audience Question #1 (Required by Rubric)</strong><br>
-  Why does allocating one large contiguous KV cache per request inevitably cause memory fragmentation as batch composition changes over time?</summary>
+  <summary><strong>Answer</strong><br>
+  </summary>
 
 Because freed memory returns as many small scattered gaps, but each request needs one large continuous KV buffer. New requests cannot fit into these small fragments, so memory becomes unusable even when total free memory is still large.
 
