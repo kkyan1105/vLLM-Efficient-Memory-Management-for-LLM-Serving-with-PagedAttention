@@ -7,17 +7,17 @@
 
 ## 1. Overview
 
-Large language model inference is dominated not by compute, but by GPU memory usage — especially the memory consumed by the **Key–Value (KV) cache** during autoregressive decoding. For each generated token, the model must use all previously computed keys and values. This causes the KV cache to grow linearly with sequence length, and for models such as OPT-13B and LLaMA-13B, a single request can consume over **1 GB** of KV-cache memory.
-
-To illustrate the magnitude of KV-cache memory, the table below shows the memory breakdown for 13B/66B/175B OPT models. Even a 13B model requires **12 GB** of KV-cache memory at maximum capacity.
+Modern LLM serving faces a major bottleneck caused by the KV cache—the key/value vectors stored for every processed token. As sequence lengths grow, the KV cache quickly becomes one of the largest memory consumers, often occupying 30–60% of GPU memory even for mid-size models.
 
 <p align="center"> <img src="figs/table1.png" width="40%"> </p>
 
-Traditional LLM serving systems allocate **one large contiguous KV buffer** per request. This design is simple but extremely inefficient. As requests with different lengths start and finish, GPU memory forms small free gaps that cannot hold another contiguous KV buffer. Even with plenty of total remaining memory, the system rejects new requests due to external **fragmentation**. Empirical results show that only **20–38%** of allocated KV memory contains real token data.
+Most existing serving systems allocate the KV cache as one large contiguous memory block per request. This design works only when memory is clean and empty. In real serving workloads, however, requests arrive with highly variable prompt lengths and generation lengths. As requests finish and new ones arrive, the GPU memory becomes fragmented into many small gaps. Even if the total free memory is large, no single contiguous region may be big enough for a new KV cache allocation, resulting in severe memory fragmentation and degraded throughput.
 
 <p align="center"> <img src="figs/figure1.png" width="40%"> </p>
 
-To address this mismatch, vLLM introduces **PagedAttention**, inspired by OS virtual memory. Instead of requiring contiguous memory, vLLM splits KV-cache into **fixed-size blocks**. A per-request **block table** maps logical positions to physical locations. Blocks can be placed anywhere in GPU memory, eliminating fragmentation, improving block reuse, enabling continuous batching, and significantly increasing throughput.
+The key insight of vLLM is that this is fundamentally a memory management problem similar to operating-system paging. vLLM introduces PagedAttention, which stores KV cache in small, fixed-size blocks instead of one contiguous region. A block table preserves logical contiguity, so the physical blocks can be placed anywhere in GPU memory without affecting attention computation.
+
+This design eliminates reservation waste, internal fragmentation, and external fragmentation, enabling significantly larger batch sizes and improving real-world serving throughput by 2×–6× across many workloads.
 
 ### Question 1
 Why does allocating one large contiguous KV cache per request inevitably cause memory fragmentation as batch composition changes over time?
