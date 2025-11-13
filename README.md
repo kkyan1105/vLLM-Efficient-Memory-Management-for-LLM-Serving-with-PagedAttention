@@ -162,7 +162,7 @@ Many tasks (e.g., translation with few-shot examples) naturally share long promp
 
 ---
 
-## 7. Results & Experiments
+## 7. Experimental Results
 
 vLLM is evaluated across multiple workloads (ShareGPT, Alpaca, translation, chatbot).  
 Across the board, vLLM delivers 2×–6× throughput improvement while keeping latency low, primarily due to its efficient KV cache management. 
