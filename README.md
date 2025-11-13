@@ -123,7 +123,7 @@ Allocate physical blocks on GPU (or CPU when offloading is needed). Because bloc
 Each worker hosts a shard of the model and executes PagedAttention to fetch KV blocks based on block tables.
 
 <p align="center"> <img src="figs/figure4.png" width="45%"> </p>
-When viewed as a whole, the architecture is essentially a "paged virtual memory" system form llm inference.
+When viewed as a whole, the architecture is essentially a "paged virtual memory" system for llm inference.
 
 ---
 
