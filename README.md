@@ -221,7 +221,7 @@ PagedAttention is now viewed as a standard approach for KV-cache management acro
 ---
 
 ## 11. Citation
-```
+```bibtex
 @inproceedings{kwon2023efficient,
   title={Efficient Memory Management for Large Language Model Serving with PagedAttention},
   author={Woosuk Kwon and Zhuohan Li and Siyuan Zhuang and Ying Sheng and Lianmin Zheng and Cody Hao Yu and Joseph E. Gonzalez and Hao Zhang and Ion Stoica},
